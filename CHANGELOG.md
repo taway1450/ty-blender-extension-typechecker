@@ -1,5 +1,129 @@
 # Changelog
 
+## 0.0.19
+
+Released on 2026-02-26.
+
+### Bug fixes
+
+- Fix panic in diagnostic rendering when attempting to render a code frame pointing to leading whitespace ([#23458](https://github.com/astral-sh/ruff/pull/23458))
+- Fix panics and incorrect inference stemming from incorrectly considering overloads in another file as being associated with a function in the file being checked ([#21977](https://github.com/astral-sh/ruff/pull/21977))
+- Fix panic when attempting to narrow the type of a dictionary key that was assigned using a multi-target assignment, e.g. `x = y = {"a": 1}` ([#23523](https://github.com/astral-sh/ruff/pull/23523))
+- Fix infinite hang on mutually recursive `TypeAliasType` definitions ([#23397](https://github.com/astral-sh/ruff/pull/23397))
+
+### LSP server
+
+- Fix inlay hints for starred unpacking targets ([#23454](https://github.com/astral-sh/ruff/pull/23454))
+
+### Core type checking
+
+- Fix assignability, subtyping and equivalence checks relating to `typing.Generator` prior to Python 3.13 ([#23386](https://github.com/astral-sh/ruff/pull/23386))
+- Understand that a scope's control flow terminates after `await foo()` if `foo` returns `typing.Awaitable[typing.Never]` or similar ([#23479](https://github.com/astral-sh/ruff/pull/23479))
+- Implement stricter handling of calls to instances of `type[T]` types ([#23472](https://github.com/astral-sh/ruff/pull/23472))
+- Support basic type narrowing for `case {...}:` patterns in `match` statements ([#23462](https://github.com/astral-sh/ruff/pull/23462))
+- Fix bugs that could manifest in incorrect overload evaluation, false-positive complaints regarding `assert_type` calls or false-positive `redundant-cast` diagnostics by reimplementing the equivalence type relation as mutual subtyping of top and bottom materializations ([#23428](https://github.com/astral-sh/ruff/pull/23428))
+- Fix equality and `__contains__` narrowing with PEP-695 type aliases ([#23545](https://github.com/astral-sh/ruff/pull/23545))
+- Support `_value_` annotations on enum classes ([#22228](https://github.com/astral-sh/ruff/pull/22228))
+
+### Improvements to diagnostics
+
+- Improve diagnostics when attempting to specialize non-generic types ([#23516](https://github.com/astral-sh/ruff/pull/23516))
+- Render subdiagnostics when `--output-format=github` is specified ([#23455](https://github.com/astral-sh/ruff/pull/23455))
+
+### Performance
+
+- Add a cached method for calculating the intersection of two types ([#23547](https://github.com/astral-sh/ruff/pull/23547))
+- Add a cached method for calculating the union of two types ([#23565](https://github.com/astral-sh/ruff/pull/23565))
+- Reduce the threshold above which `Literal` types in unions are upcasted to nominal-instance types in situations where the union type is recursively defined ([#23521](https://github.com/astral-sh/ruff/pull/23521))
+- Control flow: isolate the calculation of "loop header reachability" in a dedicated, cached function ([#23520](https://github.com/astral-sh/ruff/pull/23520))
+
+### Contributors
+
+- [@AlexWaygood](https://github.com/AlexWaygood)
+- [@silamon](https://github.com/silamon)
+- [@ibraheemdev](https://github.com/ibraheemdev)
+- [@Hugo-Polloli](https://github.com/Hugo-Polloli)
+- [@charliermarsh](https://github.com/charliermarsh)
+- [@knutwannheden](https://github.com/knutwannheden)
+- [@oconnor663](https://github.com/oconnor663)
+- [@carljm](https://github.com/carljm)
+- [@mtshiba](https://github.com/mtshiba)
+
+## 0.0.18
+
+Released on 2026-02-20.
+
+### Bug fixes
+
+- Support classes dynamically created via `type(...)` with cyclic bases ([#22792](https://github.com/astral-sh/ruff/pull/22792))
+- Fix incorrect types inferred when unpacking mixed tuples ([#23437](https://github.com/astral-sh/ruff/pull/23437))
+- Fix stack overflow for self-referential `TypeOf` in annotations ([#23407](https://github.com/astral-sh/ruff/pull/23407))
+- Fix several server panics that could occur when computing semantic tokens for the current file ([#23403](https://github.com/astral-sh/ruff/pull/23403)), [#23398](https://github.com/astral-sh/ruff/pull/23398), [#23401](https://github.com/astral-sh/ruff/pull/23401))
+
+### LSP server
+
+- Add code folding support ([#23393](https://github.com/astral-sh/ruff/pull/23393))
+- Add warning message when running `ty server` interactively ([#23416](https://github.com/astral-sh/ruff/pull/23416))
+- Exclude test-related symbols from non-first-party packages in auto-import completions ([#23252](https://github.com/astral-sh/ruff/pull/23252))
+- Fix bug where diagnostics could disappear after opening an external file ([#23447](https://github.com/astral-sh/ruff/pull/23447))
+- Remove spurious destination for Go-To Definition on variables defined in a loop ([#23391](https://github.com/astral-sh/ruff/pull/23391))
+- Use the fully qualified name when "baking" an inlay hint into the source code if the scope already contains a variable with the same name as the unqualified name ([#23265](https://github.com/astral-sh/ruff/pull/23265))
+- Resolve TypeVars in `call_signature_details` parameter types ([#23149](https://github.com/astral-sh/ruff/pull/23149))
+
+### CLI
+
+- Add `--output-format` to `ty version` ([#23387](https://github.com/astral-sh/ruff/pull/23387))
+
+### Configuration
+
+- Add `replace-imports-with-any` option ([#23122](https://github.com/astral-sh/ruff/pull/23122))
+- Support shellexpand for configuration paths ([#23274](https://github.com/astral-sh/ruff/pull/23274))
+
+### Type checking
+
+- Add a new diagnostic to detect invalid class patterns in `match` statements ([#22939](https://github.com/astral-sh/ruff/pull/22939))
+- Allow `Self` in `ClassVar` type annotations ([#23362](https://github.com/astral-sh/ruff/pull/23362))
+- Consider synthesized methods and `ClassVar`-qualified declarations when determining whether an abstract method has been overridden in a subclass ([#23381](https://github.com/astral-sh/ruff/pull/23381))
+- Add a diagnostic when combining `Final` and `ClassVar` ([#23365](https://github.com/astral-sh/ruff/pull/23365))
+- Fix return type of `assert_never` ([#23389](https://github.com/astral-sh/ruff/pull/23389))
+- Fix `assert_type` diagnostic messages ([#23342](https://github.com/astral-sh/ruff/pull/23342))
+- Ban PEP-613 type alias values from containing type-qualifier special forms ([#23444](https://github.com/astral-sh/ruff/pull/23444))
+- Infer `LiteralString` for `f"{literal_str_a} {literal_str_b}"` ([#23346](https://github.com/astral-sh/ruff/pull/23346))
+- Infer precise types for bit-shift operations on integer literals ([#23301](https://github.com/astral-sh/ruff/pull/23301))
+- Make `[abstract-method-in-final-class]` diagnostics less verbose for classes with many abstract methods ([#23379](https://github.com/astral-sh/ruff/pull/23379))
+- Improve diagnostics for abstract `@final` classes ([#23376](https://github.com/astral-sh/ruff/pull/23376))
+- Only perform literal promotion for implicitly inferred literals ([#23107](https://github.com/astral-sh/ruff/pull/23107))
+- Parenthesize callable types when they appear in the return annotation of other callable types ([#23327](https://github.com/astral-sh/ruff/pull/23327))
+- Consider a call to a generic function returning `Never` to terminate control flow ([#23419](https://github.com/astral-sh/ruff/pull/23419))
+- Support calls to intersection types ([#22469](https://github.com/astral-sh/ruff/pull/22469))
+- Validate annotated assignments to attributes on self ([#23388](https://github.com/astral-sh/ruff/pull/23388))
+- Treat a bytes-literal type as a subtype of `Sequence[<constituent integers in the bytestring>]` ([#23329](https://github.com/astral-sh/ruff/pull/23329))
+- Allow a string-literal argument to match against an `Iterable` parameter in type variable inference. ([#23326](https://github.com/astral-sh/ruff/pull/23326))
+- Support narrowing from a `Callable` type returning a `TypeGuard` type ([#23280](https://github.com/astral-sh/ruff/pull/23280))
+
+### Performance
+
+- Consider all code paths as being ambiguously reachable in cases with pathologically large control-flow graphs ([#23399](https://github.com/astral-sh/ruff/pull/23399))
+
+### Typeshed
+
+- Sync vendored typeshed stubs ([#23279](https://github.com/astral-sh/ruff/pull/23279), [Typeshed diff](https://github.com/python/typeshed/compare/fa659b1def704dea3dc8e25c7857b23eac69df4d...1b3cec156330a93f6bb22b6636bca38c27f8f721))
+
+### Contributors
+
+- [@toby-bro](https://github.com/toby-bro)
+- [@Hugo-Polloli](https://github.com/Hugo-Polloli)
+- [@MatthewMckee4](https://github.com/MatthewMckee4)
+- [@BurntSushi](https://github.com/BurntSushi)
+- [@ibraheemdev](https://github.com/ibraheemdev)
+- [@knutwannheden](https://github.com/knutwannheden)
+- [@Glyphack](https://github.com/Glyphack)
+- [@charliermarsh](https://github.com/charliermarsh)
+- [@AlexWaygood](https://github.com/AlexWaygood)
+- [@abhijeetbodas2001](https://github.com/abhijeetbodas2001)
+- [@carljm](https://github.com/carljm)
+- [@sharkdp](https://github.com/sharkdp)
+
 ## 0.0.17
 
 Released on 2026-02-13.
